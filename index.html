@@ -252,6 +252,7 @@
     let currentUser = '';
     let currentPage = 1;
     let pages = {};
+    let pageDates = {};  // stores page number => date string
     let saveTimeout;
 
     function saveUsers() {
@@ -276,34 +277,41 @@
           return;
         }
       } else {
-        users[name] = { password: pwd, pages: {} };
+        users[name] = { password: pwd, pages: {}, pageDates: {} };
         saveUsers();
       }
 
       currentUser = name;
-      pages = users[name].pages;
+      pages = users[name].pages || {};
+      pageDates = users[name].pageDates || {};
 
       document.getElementById('lockScreen').style.display = 'none';
       document.getElementById('diaryPage').style.display = 'block';
 
-      updateDate();
       loadPage(currentPage);
     }
 
-    function updateDate() {
+    function getTodayDateStr() {
       const today = new Date();
-      const dateStr = today.toLocaleDateString('en-GB');
-      document.getElementById('date').innerText = dateStr;
+      return today.toLocaleDateString('en-GB');
     }
 
     function savePage() {
       const text = document.getElementById('diaryText').value;
       if (!text.trim()) {
+        // If empty, remove page and its date
         delete pages[currentPage];
+        delete pageDates[currentPage];
       } else {
+        // Save text
         pages[currentPage] = text;
+        // If date not saved before, save today's date
+        if (!pageDates[currentPage]) {
+          pageDates[currentPage] = getTodayDateStr();
+        }
       }
       users[currentUser].pages = pages;
+      users[currentUser].pageDates = pageDates;
       saveUsers();
     }
 
@@ -311,6 +319,9 @@
       currentPage = num;
       document.getElementById('pageNumber').innerText = num;
       document.getElementById('diaryText').value = pages[num] || '';
+
+      // Show the saved date for this page or empty if no date saved
+      document.getElementById('date').innerText = pageDates[num] || '';
     }
 
     function prevPage() {
@@ -334,3 +345,4 @@
   </script>
 </body>
 </html>
+
