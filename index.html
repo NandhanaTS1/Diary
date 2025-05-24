@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Your Cute Diary</title>
+  <style>
+    body {
+      font-family: 'Comic Sans MS', cursive;
+      background-color: #fff7e6;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    /* Diary page styles unchanged */
+    .diary-page {
+      width: 90%;
+      height: 90vh;
+      margin: 20px auto;
+      background-color: #fff8dc;
+      border-radius: 16px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.1);
+      position: relative;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #a67c00;
+    }
+
+    .text-area {
+      width: 100%;
+      height: 75vh;
+      margin-top: 20px;
+      font-size: 1.1rem;
+      font-family: 'Comic Sans MS', cursive;
+      line-height: 32px;
+      background-color: #fff8dc;
+      background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 31px,
+        #d3c69c 32px
+      );
+      border: none;
+      outline: none;
+      resize: none;
+      padding: 0 10px;
+      box-sizing: border-box;
+      caret-color: black;
+    }
+
+    /* Lock cover with subtle grid background */
+    .lock-cover {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: #fff8dc;
+      background-image:
+        linear-gradient(to right, rgba(0,0,0,0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(0,0,0,0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 2;
+      overflow: hidden;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .lock-cover h1 {
+      font-size: 2rem;
+      text-transform: uppercase;
+      z-index: 10;
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    /* Changed box background color */
+    .lock-box {
+      background-color: #9b6f41a5;
+      padding: 20px 30px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      z-index: 10;
+      position: relative;
+    }
+
+    .lock-box input {
+      width: 220px;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: 1px solid #aaa;
+      font-family: 'Comic Sans MS', cursive;
+    }
+
+    /* Changed button background and hover colors */
+    .lock-box button {
+      padding: 10px 20px;
+      background-color: #0e4882;
+      color: white;
+      font-family: 'Verdana', sans-serif;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .lock-box button:hover {
+      background-color: #3a6699;
+    }
+
+    /* Error message below inputs */
+    #errorMsg {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 6px;
+      height: 18px; /* reserve space so layout doesn't jump */
+      font-family: 'Comic Sans MS', cursive;
+    }
+
+    .emoji-scatter {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: visible;
+    }
+
+    .emoji-scatter span {
+      position: absolute;
+      font-size: 2rem;
+      opacity: 0.6;
+      animation: floatMinimal 4s ease-in-out infinite;
+      user-select: none;
+    }
+
+    @keyframes floatMinimal {
+      0%, 100% {
+        transform: translateY(0);
+        opacity: 0.6;
+      }
+      50% {
+        transform: translateY(-8px);
+        opacity: 0.7;
+      }
+    }
+
+    .emoji-scatter span:nth-child(1) { top: 10%; left: 10%; }
+    .emoji-scatter span:nth-child(2) { top: 20%; left: 80%; }
+    .emoji-scatter span:nth-child(3) { top: 35%; left: 35%; }
+    .emoji-scatter span:nth-child(4) { top: 50%; left: 60%; }
+    .emoji-scatter span:nth-child(5) { top: 65%; left: 25%; }
+    .emoji-scatter span:nth-child(6) { top: 70%; left: 85%; }
+    .emoji-scatter span:nth-child(7) { top: 80%; left: 45%; }
+    .emoji-scatter span:nth-child(8) { top: 85%; left: 15%; }
+    .emoji-scatter span:nth-child(9) { top: 40%; left: 75%; }
+    .emoji-scatter span:nth-child(10) { top: 55%; left: 10%; }
+    .emoji-scatter span:nth-child(11) { top: 30%; left: 55%; }
+    .emoji-scatter span:nth-child(12) { top: 75%; left: 40%; }
+    .emoji-scatter span:nth-child(13) { top: 15%; left: 50%; }
+
+    .nav-btn {
+      position: absolute;
+      bottom: 20px;
+      font-size: 2rem;
+      background-color: transparent;
+      border: none;
+      border-radius: 0;
+      width: auto;
+      height: auto;
+      cursor: pointer;
+      user-select: none;
+      font-weight: bold;
+      line-height: normal;
+      text-align: center;
+      color: #a67c00;
+      box-shadow: none;
+      padding: 0 10px;
+    }
+
+    #prevBtn {
+      left: 20px;
+    }
+
+    #nextBtn {
+      right: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="lock-cover" id="lockScreen">
+    <h1>W E L C O M E !</h1>
+
+    <div class="emoji-scatter" aria-hidden="true">
+      <span>✨</span>
+      <span>💖</span>
+      <span>📔</span>
+      <span>🌸</span>
+      <span>💫</span>
+      <span>🌼</span>
+      <span>🦋</span>
+      <span>🌟</span>
+      <span>🍀</span>
+      <span>🐝</span>
+      <span>🍓</span>
+      <span>🌻</span>
+      <span>🧸</span>
+    </div>
+
+    <div class="lock-box">
+      <input type="text" placeholder="Enter your name" id="nameInput" />
+      <input type="password" placeholder="Enter password" id="passwordInput" />
+      <button onclick="unlockDiary()">Open Diary</button>
+      <div id="errorMsg"></div>
+    </div>
+  </div>
+
+  <div class="diary-page" id="diaryPage" style="display:none;">
+    <div class="top-bar">
+      <div id="date"></div>
+      <div>Page <span id="pageNumber">1</span></div>
+    </div>
+
+    <textarea
+      class="text-area"
+      id="diaryText"
+      placeholder="Write your thoughts here..."
+    ></textarea>
+
+    <button class="nav-btn" id="prevBtn" onclick="prevPage()">&lt;</button>
+    <button class="nav-btn" id="nextBtn" onclick="nextPage()">&gt;</button>
+  </div>
+
+  <script>
+    // Load saved users from localStorage if any
+    const storedUsers = localStorage.getItem('diaryUsers');
+    const users = storedUsers ? JSON.parse(storedUsers) : {};
+
+    let currentUser = '';
+    let currentPage = 1;
+    let pages = {};
+    let saveTimeout;
+
+    function saveUsers() {
+      localStorage.setItem('diaryUsers', JSON.stringify(users));
+    }
+
+    function unlockDiary() {
+      const name = document.getElementById('nameInput').value.trim();
+      const pwd = document.getElementById('passwordInput').value;
+      const errorMsg = document.getElementById('errorMsg');
+
+      errorMsg.textContent = ''; // clear previous error
+
+      if (!name || !pwd) {
+        errorMsg.textContent = 'Please enter both username and password';
+        return;
+      }
+
+      if (users[name]) {
+        // User exists → check password
+        if (users[name].password !== pwd) {
+          errorMsg.textContent = "Incorrect username or password";
+          return;
+        }
+      } else {
+        // New user → save username & password
+        users[name] = { password: pwd, pages: {} };
+        saveUsers();
+      }
+
+      currentUser = name;
+      pages = users[name].pages;
+
+      // Hide login screen and show diary
+      document.getElementById('lockScreen').style.display = 'none';
+      document.getElementById('diaryPage').style.display = 'block';
+
+      updateDate();
+      loadPage(currentPage);
+    }
+
+    function updateDate() {
+      const today = new Date();
+      const dateStr = today.toLocaleDateString('en-GB');
+      document.getElementById('date').innerText = dateStr;
+    }
+
+    function savePage() {
+      const text = document.getElementById('diaryText').value;
+      if (!text.trim()) {
+        delete pages[currentPage];
+      } else {
+        pages[currentPage] = text;
+      }
+      users[currentUser].pages = pages;
+      saveUsers();
+    }
+
+    function loadPage(num) {
+      currentPage = num;
+      document.getElementById('pageNumber').innerText = num;
+      document.getElementById('diaryText').value = pages[num] || '';
+    }
+
+    function prevPage() {
+      savePage();
+      if (currentPage > 1) {
+        loadPage(currentPage - 1);
+      }
+    }
+
+    function nextPage() {
+      savePage();
+      loadPage(currentPage + 1);
+    }
+
+    document.getElementById('diaryText').addEventListener('input', () => {
+      clearTimeout(saveTimeout);
+      saveTimeout = setTimeout(() => {
+        savePage();
+      }, 1000);
+    });
+  </script>
+</body>
+</html>
