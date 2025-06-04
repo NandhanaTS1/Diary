@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>dearie</title>
-  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
     body {
       font-family: 'Comic Neue', 'Comic Sans MS', cursive;
@@ -173,15 +173,22 @@
     .emoji-scatter span:nth-child(12) { top: 75%; left: 40%; }
     .emoji-scatter span:nth-child(13) { top: 15%; left: 50%; }
 
-    .nav-btn {
+    .nav-container {
       position: absolute;
       bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 30px;
+      box-sizing: border-box;
+      pointer-events: auto;
+    }
+
+    #prevBtn, #nextBtn {
       font-size: 2rem;
       background-color: transparent;
       border: none;
-      border-radius: 0;
-      width: auto;
-      height: auto;
       cursor: pointer;
       user-select: none;
       font-weight: bold;
@@ -190,14 +197,26 @@
       color: #a67c00;
       box-shadow: none;
       padding: 0 10px;
+      border-radius: 0;
+      width: auto;
+      height: auto;
     }
 
-    #prevBtn {
-      left: 20px;
+    #closeBtn {
+      background-color: #7b4b17;
+      color: white;
+      border-radius: 6px;
+      font-family: 'Verdana', sans-serif;
+      font-weight: bold;
+      font-size: 1rem;
+      padding: 6px 14px;
+      cursor: pointer;
+      border: none;
+      user-select: none;
+      transition: background-color 0.3s ease;
     }
-
-    #nextBtn {
-      right: 20px;
+    #closeBtn:hover {
+      background-color: #3a6699;
     }
   </style>
 </head>
@@ -241,8 +260,11 @@
       placeholder="Write your thoughts here..."
     ></textarea>
 
-    <button class="nav-btn" id="prevBtn" onclick="prevPage()">&lt;</button>
-    <button class="nav-btn" id="nextBtn" onclick="nextPage()">&gt;</button>
+    <div class="nav-container">
+      <button id="prevBtn" onclick="prevPage()">&lt;</button>
+      <button id="closeBtn" onclick="closeDiary()">Close Diary</button>
+      <button id="nextBtn" onclick="nextPage()">&gt;</button>
+    </div>
   </div>
 
   <script>
@@ -252,7 +274,7 @@
     let currentUser = '';
     let currentPage = 1;
     let pages = {};
-    let pageDates = {};  // stores page number => date string
+    let pageDates = {};
     let saveTimeout;
 
     function saveUsers() {
@@ -299,13 +321,10 @@
     function savePage() {
       const text = document.getElementById('diaryText').value;
       if (!text.trim()) {
-        // If empty, remove page and its date
         delete pages[currentPage];
         delete pageDates[currentPage];
       } else {
-        // Save text
         pages[currentPage] = text;
-        // If date not saved before, save today's date
         if (!pageDates[currentPage]) {
           pageDates[currentPage] = getTodayDateStr();
         }
@@ -319,9 +338,7 @@
       currentPage = num;
       document.getElementById('pageNumber').innerText = num;
       document.getElementById('diaryText').value = pages[num] || '';
-
-      // Show the saved date for this page or empty if no date saved
-      document.getElementById('date').innerText = pageDates[num] || '';
+      document.getElementById('date').innerText = pageDates[num] || getTodayDateStr();
     }
 
     function prevPage() {
@@ -336,13 +353,29 @@
       loadPage(currentPage + 1);
     }
 
+    function closeDiary() {
+      savePage();
+      currentUser = '';
+      currentPage = 1;
+      pages = {};
+      pageDates = {};
+      document.getElementById('diaryText').value = '';
+      document.getElementById('date').innerText = '';
+      document.getElementById('pageNumber').innerText = '1';
+      document.getElementById('diaryPage').style.display = 'none';
+      document.getElementById('lockScreen').style.display = 'flex';
+
+      document.getElementById('nameInput').value = '';
+      document.getElementById('passwordInput').value = '';
+      document.getElementById('errorMsg').textContent = '';
+    }
+
     document.getElementById('diaryText').addEventListener('input', () => {
       clearTimeout(saveTimeout);
       saveTimeout = setTimeout(() => {
         savePage();
-      }, 1000);
+      }, 500);
     });
   </script>
 </body>
 </html>
-
